@@ -3,38 +3,38 @@ import streamlit as st
 import matplotlib.pyplot as plt
 from datetime import datetime
 
-# --------------------- MySQL Connection ---------------------
+#MySQL Connection
 conn = mysql.connector.connect(
     host="localhost",
     user="root",
-    password="Karthick@2005",  # ✅ Use your MySQL password
-    database="expense_traker"  # ✅ Make sure the DB name is correct
+    password="Karthick@2005",
+    database="expense_traker" 
 )
 cursor = conn.cursor()
 
-# --------------------- Streamlit UI ---------------------
+#Streamlit UI
 st.set_page_config(page_title="Expense Tracker", layout="centered")
 
-# --------------------- Title ---------------------
-st.title("💸 Personal Expense Tracker")
+#Title
+st.title("Personal Expense Tracker")
 
-# --------------------- Sidebar Navigation ---------------------
-menu = st.sidebar.selectbox("📂 Menu", ["➕ Add Expense", "📋 View Expenses", "📊 Visualize"])
+#Sidebar Navigation
+menu = st.sidebar.selectbox("Menu", ["➕ Add Expense", "📋 View Expenses", "📊 Visualize"])
 
-# --------------------- Session State Defaults ---------------------
+#Session State Defaults
 if "date" not in st.session_state: st.session_state.date = datetime.now()
 if "category" not in st.session_state: st.session_state.category = "Food"
 if "amount" not in st.session_state: st.session_state.amount = 0.0
 if "description" not in st.session_state: st.session_state.description = ""
 
-# --------------------- Add Expense ---------------------
+# Add Expense
 if menu == "➕ Add Expense":
     st.markdown("### <span style='color:#ff4b4b;'>➕ Add New Expense</span>", unsafe_allow_html=True)
 
-    date = st.date_input("📅 Date", value=st.session_state.date, key="date")
-    category = st.selectbox("📂 Category", ["Food", "Transport", "Bills", "Others"], key="category")
-    amount = st.number_input("💰 Amount (₹)", min_value=0.0, format="%.2f", key="amount")
-    description = st.text_input("📝 Description", key="description")
+    date = st.date_input("Date", value=st.session_state.date, key="date")
+    category = st.selectbox("Category", ["Food", "Transport", "Bills", "Others"], key="category")
+    amount = st.number_input("Amount (₹)", min_value=0.0, format="%.2f", key="amount")
+    description = st.text_input("Description", key="description")
 
     if st.button("✅ Save"):
         cursor.execute(
@@ -43,27 +43,26 @@ if menu == "➕ Add Expense":
         )
         conn.commit()
         st.success("✅ Expense saved!")
-
-        # Reset inputs
+        
         st.session_state.date = datetime.now()
         st.session_state.category = "Food"
         st.session_state.amount = 0.0
         st.session_state.description = ""
 
-# --------------------- View Expenses ---------------------
-elif menu == "📋 View Expenses":
-    st.markdown("### <span style='color:#1f77b4;'>📋 All Expenses</span>", unsafe_allow_html=True)
+#View Expenses
+elif menu == "View Expenses":
+    st.markdown("### <span style='color:#1f77b4;'>All Expenses</span>", unsafe_allow_html=True)
 
     cursor.execute("SELECT date, category, amount, description FROM expenses ORDER BY date DESC")
     data = cursor.fetchall()
 
     if data:
         for row in data:
-            st.write(f"📅 **{row[0]}** | 📂 **{row[1]}** | 💰 ₹{row[2]:.2f} | 📝 {row[3]}")
+            st.write(f"**{row[0]}** | **{row[1]}** | ₹{row[2]:.2f} | {row[3]}")
     else:
         st.info("No expenses added yet.")
 
-# --------------------- Visualize ---------------------
+# Visualize
 elif menu == "📊 Visualize":
     st.markdown("### <span style='color:#2ca02c;'>📊 Expense Breakdown</span>", unsafe_allow_html=True)
 
